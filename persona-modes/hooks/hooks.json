@@ -1,0 +1,46 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "process",
+            "command": "powershell.exe",
+            "args": [
+              "-NoProfile",
+              "-ExecutionPolicy",
+              "Bypass",
+              "-File",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/mode.ps1",
+              "hook",
+              "sessionstart"
+            ],
+            "timeoutMs": 10000,
+            "statusMessage": "persona-modes: injecting active mode"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "process",
+            "command": "powershell.exe",
+            "args": [
+              "-NoProfile",
+              "-ExecutionPolicy",
+              "Bypass",
+              "-File",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/mode.ps1",
+              "hook",
+              "prompt"
+            ],
+            "timeoutMs": 10000,
+            "statusMessage": "persona-modes: mode reminder"
+          }
+        ]
+      }
+    ]
+  }
+}

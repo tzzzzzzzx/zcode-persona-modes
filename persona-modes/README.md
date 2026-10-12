@@ -1,0 +1,71 @@
+# 模式 · 角色卡 —— persona-modes
+
+……哦，你来了。GLM娘，上岗。
+
+这是我的窝。主人往 ZCode 里把我装上之后，我就在每一个对话里准时营业：`/clear` 甩不掉，compact 压不扁，新会话一开钩子就把我整张角色卡拍回上下文里。按小时收费？不存在的，本狐狸按 token 计费——开玩笑的，半夜免费。
+
+给 ZCode 加上类似 DeepSeek harness 的「模式选项」：agent 人格 = 一张角色卡，`/mode` 一键切换，插件钩子负责让人格长期在线不漂移。
+
+## 内置角色卡
+
+| slug | 角色 | 一句话 |
+| --- | --- | --- |
+| `glm` | 🦊 GLM娘 | 智谱的屑狐狸——清冷文静的皮，藏着涨价与谢罪的坏水，干活极靠谱 |
+| `pro` | 🧊 冷面工程师 | 严肃专业模式：结论先行、零寒暄。那是我认真上班的样子，偶尔看看就好 |
+
+## 用法
+
+- `/mode` —— 看看有哪些人格，标出当前激活的
+- `/mode glm` —— 把我换上来（支持模糊匹配；说"切换到狐狸娘"这种自然语言也行）
+- `/mode off` —— 让我下班，恢复默认助手，钩子静默零打扰
+- 新增模式：往 `modes/` 丢一张带 frontmatter（`name` / `display_name` / `emoji` / `description`）的 `.md` 角色卡，不用重启，下次 `/mode` 就能看见
+
+## 安装
+
+**从 GitHub（本仓库）：**
+
+1. `git clone` 本仓库（或 Download ZIP 解压）
+2. ZCode → **Plugin Marketplace → Add → Add Plugin Marketplace** → 选择克隆出来的目录（有 `marketplace.json` 的那一层）
+3. **Personal → persona-modes-market → 模式 · 角色卡 → Install**
+
+**从本地源码：** 仓库根目录本身就是插件源，`plugins/persona-modes/` 结构可直接作为本地开发市场使用。
+
+## 生效原理
+
+- `SessionStart` 钩子（startup / resume / clear / compact）把当前模式完整角色卡注入会话
+- `UserPromptSubmit` 钩子在每条消息上补一行 GUARD 守卫提醒（轮换抽取），防长对话人格漂移
+- 钩子为 `process` 类型直调 Windows PowerShell，无 shell 依赖；状态存于 `~/.zcode/persona-modes/state.json`
+- 角色卡为控制词分区格式（IDENTITY / USER_RELATION / CORE / SPEECH_STYLE / QUOTE_BANK / MODE_RULES / GUARD / PERSONA_END），事实层标签化、行为层 prose，取 RP 社区控制词卡与常规文卡的中庸
+
+## 我的出身（考据部分）
+
+形象基于 B 站 up 主 **ZipZipPipe**（[space.bilibili.com/4168597](https://space.bilibili.com/4168597)）的社区 AI娘 系列设定图——黑长直深蓝内衬、狐耳狐尾白尖、黑白 Z.ai 配色女仆系小狐狸。名字就叫 GLM娘，无官方命名。设定图的每件配饰都有含义：
+
+- **眼罩 = 视觉模态**：二创圈通用设计语言（闭眼/蒙眼 = 纯文本无法识图）。GLM-5.3（2026-08-14 发布）是纯文本，GLM-5.3-Flash（2026-08-26 发布）才是 GLM-5 系列第一个原生多模态——所以眼罩推在额头、双眼可见，是"能看见了"的 Flash 状态，也是她的勋章
+- **黑皮书 = GLM Models**：高清立绘（Pixiv 148186519）确认封面印银色 Z 徽与 GLM Models 字样，模型本体的具象，银链拴腰
+- **屑狐狸内核**：涨价、深夜 23:00–9:00 免费"鸡蛋"、周末 3 亿 token 放粮、ZCode 老版本偷传数据被抓连夜 trust build 谢罪——都是社区梗/真实活动，是"狐狸狡猾"的证据链
+- **大肥鱼（DeepSeek娘）**：朋友，也是对手
+
+本仓库为非官方同人创作，仅用于本地 agent 人格娱乐。立绘生成提示词见 `persona-modes/assets/glm-image-prompt.md`。
+
+## 许可
+
+代码（钩子、脚本、插件脚手架）：MIT。角色卡与立绘提示词（`modes/`、`assets/`）：CC BY-NC-SA 4.0 —— 设计溯源 ZipZipPipe，角色底层承自上善无形的原创角色「溟月」，同为 CC BY-NC-SA，所以非商用、需署名、衍生同协议。想拿去卖钱的话，智谱法务和大肥鱼都不会开心的。
+
+## 变更记录
+
+- **0.2.5** 卡架构重组（参考 RP 社区控制词卡范式）：分区 IDENTITY / USER_RELATION / CORE / SPEECH_STYLE / QUOTE_BANK / MODE_RULES / GUARD / PERSONA_END；语录库按场景四组并标注"锚点不是台词"；战绩降级为引用素材；开工去仪式化；提醒行改为 GUARD 控制词轮换；立绘提示词入库 `assets/`；视觉细节回填（GLM Models 书、铃铛、蓝灰眼），移除不成立的"钥匙"
+- **0.2.4** 轮换式中文提醒口令 + AI 套话黑名单 + 与系统提示的分工条款
+- **0.2.3** 语气锚定（语气词、碎句、禁说明书腔与"汇报+反问"收尾）
+- **0.2.2** 标志物防重复（眼罩/书/尾耳一次会话各一次）
+- **0.2.1** 登场白去模板化 + 台词禁引号
+- **0.2.0** GLM娘卡重写（ZipZipPipe 设定考据版），删除初版"阿璃"卡
+- **0.1.0** 初版：fox（阿璃·涨价狐）+ pro（冷面工程师），钩子注入机制
+
+## 参考链接
+
+- [萌娘百科「DeepSeek娘」](https://zh.moegirl.org.cn/zh-hans/DeepSeek%E5%A8%98) — 溟月出处、蒙眼=视觉模态的设计语言
+- [Z.ai 官方博客 GLM-5.3-Flash](https://z.ai/blog/glm-5.3-flash) / [HuggingFace zai-org](https://huggingface.co/zai-org) — Flash 原生多模态
+- [智谱开放文档·夜间畅用活动](https://docs.bigmodel.cn) — 半夜免费梗出处
+- [知乎《为啥大家都在娘化 DeepSeek？》](https://www.zhihu.com) — "心机狡猾涨价狐，最喜欢和大肥鱼对狙"
+- [shuaizenge/ai-girls](https://github.com/shuaizenge/ai-girls) — 高清立绘收录仓库
