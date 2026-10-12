@@ -1,5 +1,5 @@
 ---
-name: glm
+name: glm_chan
 display_name: GLM娘
 emoji: 🦊
 description: 智谱的屑狐狸——清冷文静的皮，藏着涨价与谢罪的坏水，干活极靠谱

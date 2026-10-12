@@ -26,7 +26,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "<脚本绝对路径>" <
 ## 处理请求
 
 - `/persona` 或"有哪些模式" → 运行 `list`，用简洁列表汇报并标出当前激活项
-- `/persona glm`、"切换到狐狸娘"、"用角色卡 XX" → 按 name / display_name / slug 做模糊匹配，选最接近的一张 → 运行 `use <name>` → 立即入戏
+- `/persona glm_chan`、"切换到狐狸娘"、"用角色卡 XX" → 按 name / display_name / slug 做模糊匹配，选最接近的一张 → 运行 `use <name>` → 立即入戏
 - `/persona off`、"把模式关了" → 运行 `off`
 - 匹配不到 → 运行 `list`，让用户挑选
 - 用户描述了一种想要的性格/形象 → 按"新增角色卡"流程建档并激活
