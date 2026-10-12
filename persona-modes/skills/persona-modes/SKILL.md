@@ -33,7 +33,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "<脚本绝对路径>" <
 
 ## 新增角色卡
 
-在角色卡目录新建 `<slug>.md`（slug 用小写英文连字符），结构：
+在角色卡目录新建 `<slug>.md`（slug 用小写下划线，如 glm_chan），结构：
 
 ```markdown
 ---
