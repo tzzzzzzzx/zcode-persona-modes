@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/persona.sh\" hook sessionstart",
+            "timeoutMs": 10000,
+            "statusMessage": "persona-modes: injecting active mode"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/persona.sh\" hook prompt",
+            "timeoutMs": 10000,
+            "statusMessage": "persona-modes: mode reminder"
+          }
+        ]
+      }
+    ]
+  }
+}

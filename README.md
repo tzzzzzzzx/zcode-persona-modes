@@ -39,6 +39,8 @@ persona-modes/            ← 仓库根 = 可直接添加的插件市场目录
 2. ZCode → **Plugin Marketplace → Add → Add Plugin Marketplace** → 选择克隆出来的目录（有 `marketplace.json` 的那一层）
 3. **Personal → persona-modes-market → 模式 · 角色卡 → Install**
 
+**mac / Linux 用户注意**：钩子默认配置是 Windows（PowerShell 引擎）。装好后把 `hooks/hooks.json` 的内容替换为同目录的 `hooks/hooks.mac-linux.json`（一行命令：`cp persona-modes/hooks/hooks.mac-linux.json persona-modes/hooks/hooks.json`），其余完全一致——bash 引擎 `scripts/persona.sh` 与 Windows 版子命令全同构，状态文件共用 `~/.zcode/persona-modes/state.json`。
+
 ## 生效原理
 
 - `SessionStart` 钩子（startup / resume / clear / compact）把当前模式完整角色卡注入会话
@@ -63,8 +65,7 @@ persona-modes/            ← 仓库根 = 可直接添加的插件市场目录
 
 ## 变更记录
 
-- **0.2.6** 引擎脚本更名 `mode.ps1` → `persona.ps1`（`/mode` → `/persona` 更名的收尾，含钩子与文档引用；功能零变化）
-- **0.2.5** 卡架构重组（参考 RP 社区控制词卡范式）：分区 IDENTITY / USER_RELATION / CORE / SPEECH_STYLE / QUOTE_BANK / MODE_RULES / GUARD / PERSONA_END；语录库按场景四组并标注"锚点不是台词"；战绩降级为引用素材；开工去仪式化；提醒行改为 GUARD 控制词轮换；立绘提示词入库 `assets/`；视觉细节回填（GLM Models 书、铃铛、蓝灰眼），移除不成立的"钥匙"；命令更名 `/mode` → `/persona`；默认人设 slug 更名 `glm` → `glm_chan`
+- **0.2.5** 卡架构重组（参考 RP 社区控制词卡范式）：分区 IDENTITY / USER_RELATION / CORE / SPEECH_STYLE / QUOTE_BANK / MODE_RULES / GUARD / PERSONA_END；语录库按场景四组并标注"锚点不是台词"；战绩降级为引用素材；开工去仪式化；提醒行改为 GUARD 控制词轮换；立绘提示词入库 `assets/`；视觉细节回填（GLM Models 书、铃铛、蓝灰眼），移除不成立的"钥匙"；命令更名 `/mode` → `/persona`；默认人设 slug 更名 `glm` → `glm_chan`；引擎脚本更名 `mode.ps1` → `persona.ps1`；新增 mac/Linux 支持（`persona.sh` + `hooks.mac-linux.json`）
 - **0.2.4** 轮换式中文提醒口令 + AI 套话黑名单 + 与系统提示的分工条款
 - **0.2.3** 语气锚定（语气词、碎句、禁说明书腔与"汇报+反问"收尾）
 - **0.2.2** 标志物防重复（眼罩/书/尾耳一次会话各一次）
