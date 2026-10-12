@@ -1,6 +1,6 @@
 ---
 name: persona-modes
-description: 切换/管理 ZCode 的「模式」（角色卡人格）。当用户输入 /mode，或想切换模式/人格/角色卡（例如"开启狐狸娘模式"）、关闭模式、查看可用模式、新增角色卡时使用。Use when the user invokes /mode or asks to switch, list, add, or disable an agent persona/mode/character card.
+description: 切换/管理 ZCode 的「模式」（角色卡人格）。当用户输入 /persona（旧名 /mode），或想切换模式/人格/角色卡（例如"开启狐狸娘模式"）、关闭模式、查看可用模式、新增角色卡时使用。Use when the user invokes /persona or asks to switch, list, add, or disable an agent persona/mode/character card.
 ---
 
 # Persona Modes —— 模式 / 角色卡系统
@@ -25,9 +25,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "<脚本绝对路径>" <
 
 ## 处理请求
 
-- `/mode` 或"有哪些模式" → 运行 `list`，用简洁列表汇报并标出当前激活项
-- `/mode fox`、"切换到狐狸娘"、"用角色卡 XX" → 按 name / display_name / slug 做模糊匹配，选最接近的一张 → 运行 `use <name>` → 立即入戏
-- `/mode off`、"把模式关了" → 运行 `off`
+- `/persona` 或"有哪些模式" → 运行 `list`，用简洁列表汇报并标出当前激活项
+- `/persona glm`、"切换到狐狸娘"、"用角色卡 XX" → 按 name / display_name / slug 做模糊匹配，选最接近的一张 → 运行 `use <name>` → 立即入戏
+- `/persona off`、"把模式关了" → 运行 `off`
 - 匹配不到 → 运行 `list`，让用户挑选
 - 用户描述了一种想要的性格/形象 → 按"新增角色卡"流程建档并激活
 
@@ -53,5 +53,5 @@ description: <一句话描述，会显示在列表里>
 ## 生效机制（解释给用户听时用）
 
 - 激活后，插件钩子会在**会话启动、/clear、compact 之后**重新注入完整角色卡，并在**每条用户消息**上补一行模式提醒 → 人格跨会话、跨上下文压缩持久生效
-- `/mode off` 之后钩子静默，不再注入任何内容
+- `/persona off` 之后钩子静默，不再注入任何内容
 - 状态保存在 `~/.zcode/persona-modes/state.json`

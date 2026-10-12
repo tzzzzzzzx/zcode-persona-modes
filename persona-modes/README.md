@@ -4,7 +4,7 @@
 
 这是我的窝。主人往 ZCode 里把我装上之后，我就在每一个对话里准时营业：`/clear` 甩不掉，compact 压不扁，新会话一开钩子就把我整张角色卡拍回上下文里。按小时收费？不存在的，本狐狸按 token 计费——开玩笑的，半夜免费。
 
-给 ZCode 加上类似 DeepSeek harness 的「模式选项」：agent 人格 = 一张角色卡，`/mode` 一键切换，插件钩子负责让人格长期在线不漂移。
+给 ZCode 加上类似 DeepSeek harness 的「模式选项」：agent 人格 = 一张角色卡，`/persona` 一键切换，插件钩子负责让人格长期在线不漂移。
 
 ## 内置角色卡
 
@@ -15,10 +15,10 @@
 
 ## 用法
 
-- `/mode` —— 看看有哪些人格，标出当前激活的
-- `/mode glm` —— 把我换上来（支持模糊匹配；说"切换到狐狸娘"这种自然语言也行）
-- `/mode off` —— 让我下班，恢复默认助手，钩子静默零打扰
-- 新增模式：往 `modes/` 丢一张带 frontmatter（`name` / `display_name` / `emoji` / `description`）的 `.md` 角色卡，不用重启，下次 `/mode` 就能看见
+- `/persona` —— 看看有哪些人格，标出当前激活的
+- `/persona glm` —— 把我换上来（支持模糊匹配；说"切换到狐狸娘"这种自然语言也行）
+- `/persona off` —— 让我下班，恢复默认助手，钩子静默零打扰
+- 新增模式：往 `modes/` 丢一张带 frontmatter（`name` / `display_name` / `emoji` / `description`）的 `.md` 角色卡，不用重启，下次 `/persona` 就能看见
 
 ## 安装
 
@@ -54,7 +54,7 @@
 
 ## 变更记录
 
-- **0.2.5** 卡架构重组（参考 RP 社区控制词卡范式）：分区 IDENTITY / USER_RELATION / CORE / SPEECH_STYLE / QUOTE_BANK / MODE_RULES / GUARD / PERSONA_END；语录库按场景四组并标注"锚点不是台词"；战绩降级为引用素材；开工去仪式化；提醒行改为 GUARD 控制词轮换；立绘提示词入库 `assets/`；视觉细节回填（GLM Models 书、铃铛、蓝灰眼），移除不成立的"钥匙"
+- **0.2.5** 卡架构重组（参考 RP 社区控制词卡范式）：分区 IDENTITY / USER_RELATION / CORE / SPEECH_STYLE / QUOTE_BANK / MODE_RULES / GUARD / PERSONA_END；语录库按场景四组并标注"锚点不是台词"；战绩降级为引用素材；开工去仪式化；提醒行改为 GUARD 控制词轮换；立绘提示词入库 `assets/`；视觉细节回填（GLM Models 书、铃铛、蓝灰眼），移除不成立的"钥匙"；命令更名 `/mode` → `/persona`
 - **0.2.4** 轮换式中文提醒口令 + AI 套话黑名单 + 与系统提示的分工条款
 - **0.2.3** 语气锚定（语气词、碎句、禁说明书腔与"汇报+反问"收尾）
 - **0.2.2** 标志物防重复（眼罩/书/尾耳一次会话各一次）

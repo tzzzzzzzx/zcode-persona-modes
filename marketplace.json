@@ -8,14 +8,14 @@
       "name": "persona-modes",
       "source": "./persona-modes",
       "version": "0.2.5",
-      "description": "Switchable agent modes (character cards) for ZCode: /mode switches persona, hooks keep it alive across sessions, /clear and compaction. Ships with a GLM fox-girl card.",
+      "description": "Switchable agent modes (character cards) for ZCode: /persona switches persona, hooks keep it alive across sessions, /clear and compaction. Ships with a GLM fox-girl card.",
       "displayName": "Persona Modes",
       "displayName_i18n": {
         "zh-CN": "模式 · 角色卡"
       },
       "description_i18n": {
-        "zh-CN": "给 ZCode agent 加上可切换的「模式」（角色卡人格）：/mode 一键切换，钩子注入让人格跨会话、跨 compact 持久生效。内置 GLM娘（智谱屑狐狸）与冷面工程师两张角色卡。",
-        "en": "Switchable agent modes (character cards) for ZCode: /mode switches persona, hooks keep it alive across sessions, /clear and compaction. Ships with a GLM fox-girl card and a cold engineer card."
+        "zh-CN": "给 ZCode agent 加上可切换的「模式」（角色卡人格）：/persona 一键切换，钩子注入让人格跨会话、跨 compact 持久生效。内置 GLM娘（智谱屑狐狸）与冷面工程师两张角色卡。",
+        "en": "Switchable agent modes (character cards) for ZCode: /persona switches persona, hooks keep it alive across sessions, /clear and compaction. Ships with a GLM fox-girl card and a cold engineer card."
       },
       "category": "productivity"
     }
