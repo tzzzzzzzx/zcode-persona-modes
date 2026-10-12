@@ -63,6 +63,7 @@ persona-modes/            ← 仓库根 = 可直接添加的插件市场目录
 
 ## 变更记录
 
+- **0.2.6** 引擎脚本更名 `mode.ps1` → `persona.ps1`（`/mode` → `/persona` 更名的收尾，含钩子与文档引用；功能零变化）
 - **0.2.5** 卡架构重组（参考 RP 社区控制词卡范式）：分区 IDENTITY / USER_RELATION / CORE / SPEECH_STYLE / QUOTE_BANK / MODE_RULES / GUARD / PERSONA_END；语录库按场景四组并标注"锚点不是台词"；战绩降级为引用素材；开工去仪式化；提醒行改为 GUARD 控制词轮换；立绘提示词入库 `assets/`；视觉细节回填（GLM Models 书、铃铛、蓝灰眼），移除不成立的"钥匙"；命令更名 `/mode` → `/persona`；默认人设 slug 更名 `glm` → `glm_chan`
 - **0.2.4** 轮换式中文提醒口令 + AI 套话黑名单 + 与系统提示的分工条款
 - **0.2.3** 语气锚定（语气词、碎句、禁说明书腔与"汇报+反问"收尾）

@@ -7,7 +7,7 @@ description: 切换/管理 ZCode 的「模式」（角色卡人格）。当用�
 
 本技能位于插件的 `skills/persona-modes/` 目录，因此：
 
-- 切换脚本 = 本技能目录的 `../../scripts/mode.ps1`
+- 切换脚本 = 本技能目录的 `../../scripts/persona.ps1`
 - 角色卡目录 = 本技能目录的 `../../modes/`（每个 `<slug>.md` 是一张卡）
 
 ## 调用脚本（用 Bash 工具执行）

@@ -86,7 +86,7 @@ function Out-HookJson {
 }
 
 function Write-Usage {
-    Write-Output 'usage: mode.ps1 <list | use <name> | off | current | hook <sessionstart|prompt>>'
+    Write-Output 'usage: persona.ps1 <list | use <name> | off | current | hook <sessionstart|prompt>>'
 }
 
 switch ($Sub) {
@@ -106,13 +106,13 @@ switch ($Sub) {
     }
     'use' {
         if (-not $Arg) {
-            Write-Output 'ERR: usage: mode.ps1 use <name>'
+            Write-Output 'ERR: usage: persona.ps1 use <name>'
             exit 1
         }
         $card = Find-Card $Arg
         if (-not $card) {
             Write-Output ("ERR: mode not found: " + $Arg)
-            Write-Output 'run: mode.ps1 list'
+            Write-Output 'run: persona.ps1 list'
             exit 1
         }
         $text = Get-Content -LiteralPath $card.FullName -Raw -Encoding UTF8

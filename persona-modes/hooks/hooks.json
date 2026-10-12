@@ -11,7 +11,7 @@
               "-ExecutionPolicy",
               "Bypass",
               "-File",
-              "${CLAUDE_PLUGIN_ROOT}/scripts/mode.ps1",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/persona.ps1",
               "hook",
               "sessionstart"
             ],
@@ -32,7 +32,7 @@
               "-ExecutionPolicy",
               "Bypass",
               "-File",
-              "${CLAUDE_PLUGIN_ROOT}/scripts/mode.ps1",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/persona.ps1",
               "hook",
               "prompt"
             ],
