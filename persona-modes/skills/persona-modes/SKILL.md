@@ -7,14 +7,23 @@ description: 切换/管理 ZCode 的「模式」（角色卡人格）。当用�
 
 本技能位于插件的 `skills/persona-modes/` 目录，因此：
 
-- 切换脚本 = 本技能目录的 `../../scripts/persona.ps1`
+- 切换脚本 = 本技能目录的 `../../scripts/`（`persona.sh` for mac/Linux，`persona.ps1` for Windows）
 - 角色卡目录 = 本技能目录的 `../../modes/`（每个 `<slug>.md` 是一张卡）
 
-## 调用脚本（用 Bash 工具执行）
+## 调用脚本（用命令工具执行，先按系统选引擎）
 
-```
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "<脚本绝对路径>" <子命令>
-```
+两套引擎子命令完全同构，状态文件共用 `~/.zcode/persona-modes/state.json`，脚本都在插件目录的 `scripts/` 下：
+
+- **macOS / Linux**：
+  ```
+  bash "<插件目录>/scripts/persona.sh" <子命令>
+  ```
+- **Windows**：
+  ```
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "<插件目录>\scripts\persona.ps1" <子命令>
+  ```
+
+按本机系统选其一；不确定时优先试 bash 版（Windows 上会失败，再换 PowerShell 版即可）。
 
 子命令：
 
