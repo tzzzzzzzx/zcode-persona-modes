@@ -41,8 +41,10 @@ card_body() {
 }
 
 card_field() {
-    # $1 = file, $2 = field name
-    frontmatter "$1" | grep "^$2:" | head -n 1 | sed "s/^$2:[[:space:]]*//; s/[[:space:]]*$//"
+    # $1 = file, $2 = field name; one pair of surrounding YAML quotes is stripped
+    frontmatter "$1" | grep "^$2:" | head -n 1 \
+        | sed "s/^$2:[[:space:]]*//; s/[[:space:]]*$//" \
+        | sed "s/^\"\(.*\)\"$/\1/; s/^'\(.*\)'$/\1/"
 }
 
 card_name() {
@@ -96,6 +98,12 @@ cmd_use() {
         exit 1
     fi
     n=$(card_name "$f")
+    case "$n" in
+        *\"*|*\\*)
+            echo "ERR: mode name must not contain quotes or backslash (fix the card frontmatter): $n"
+            exit 1
+            ;;
+    esac
     set_active "$n"
     echo "=== mode activated: $n ==="
     echo "card file: $f"

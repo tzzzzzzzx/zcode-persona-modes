@@ -44,7 +44,16 @@ function Get-Cards {
 function Get-CardField {
     param([string]$Text, [string]$Field)
     $m = [regex]::Match($Text, '(?m)^' + [regex]::Escape($Field) + ':\s*(.+?)\s*$')
-    if ($m.Success) { return $m.Groups[1].Value }
+    if ($m.Success) {
+        $v = $m.Groups[1].Value
+        if ($v.Length -ge 2) {
+            $first = $v[0]; $last = $v[$v.Length - 1]
+            if (($first -eq '"' -and $last -eq '"') -or ($first -eq "'" -and $last -eq "'")) {
+                $v = $v.Substring(1, $v.Length - 2)
+            }
+        }
+        return $v
+    }
     return ''
 }
 
@@ -118,6 +127,10 @@ switch ($Sub) {
         $text = Get-Content -LiteralPath $card.FullName -Raw -Encoding UTF8
         $name = Get-CardField $text 'name'
         if (-not $name) { $name = $card.BaseName }
+        if ($name -match '["\\]') {
+            Write-Output ("ERR: mode name must not contain quotes or backslash (fix the card frontmatter): " + $name)
+            exit 1
+        }
         Set-ActiveMode $name
         Write-Output ("=== mode activated: {0} ===" -f $name)
         Write-Output ("card file: {0}" -f $card.FullName)

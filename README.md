@@ -65,7 +65,7 @@ persona-modes/            ← 仓库根 = 可直接添加的插件市场目录
 
 ## 变更记录
 
-- **0.2.6** 修复 mac/Linux 下 `/persona` 仍指向 PowerShell 引擎的问题：技能与命令现在按系统自动选 `persona.sh` / `persona.ps1`（两引擎子命令同构、状态文件共用）
+- **0.2.6** 修复 mac/Linux 下 `/persona` 仍指向 PowerShell 引擎的问题：技能与命令现在按系统自动选 `persona.sh` / `persona.ps1`（两引擎子命令同构、状态文件共用）；修复 bash 引擎状态文件的引号往返 bug：frontmatter 字段剥掉对称的包裹引号（`name: "x"` 这类 YAML 合法写法不再写坏 `state.json`、不再让钩子静默失效），模式名含引号/反斜杠时 `use` 直接报错拒绝，两引擎行为对齐
 - **0.2.5** 卡架构重组（参考 RP 社区控制词卡范式）：分区 IDENTITY / USER_RELATION / CORE / SPEECH_STYLE / QUOTE_BANK / MODE_RULES / GUARD / PERSONA_END；语录库按场景四组并标注"锚点不是台词"；战绩降级为引用素材；开工去仪式化；提醒行改为 GUARD 控制词轮换；立绘提示词入库 `assets/`；视觉细节回填（GLM Models 书、铃铛、蓝灰眼），移除不成立的"钥匙"；命令更名 `/mode` → `/persona`；默认人设 slug 更名 `glm` → `glm_chan`；引擎脚本更名 `mode.ps1` → `persona.ps1`；新增 mac/Linux 支持（`persona.sh` + `hooks.mac-linux.json`）
 - **0.2.4** 轮换式中文提醒口令 + AI 套话黑名单 + 与系统提示的分工条款
 - **0.2.3** 语气锚定（语气词、碎句、禁说明书腔与"汇报+反问"收尾）
