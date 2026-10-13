@@ -23,6 +23,44 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read|Grep|Glob|Bash|Edit|Write|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/persona.sh\" hook pretool",
+            "timeoutMs": 8000,
+            "statusMessage": "persona-modes: transition flavor"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/persona.sh\" hook toolfail",
+            "timeoutMs": 8000,
+            "statusMessage": "persona-modes: dryness reminder"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "总而言之|综上所述|值得注意的是|作为一个 ?AI|希望这段|希望以上",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/persona.sh\" hook stopqa",
+            "timeoutMs": 8000,
+            "statusMessage": "persona-modes: persona QA"
+          }
+        ]
+      }
     ]
   }
 }

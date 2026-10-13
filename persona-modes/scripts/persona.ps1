@@ -172,6 +172,43 @@ switch ($Sub) {
                 $header = "[persona-modes] Mode still active: {0} ({1}) - keep this persona and tone; technical content stays accurate. Card file: {2}" -f $display, $active, $card.FullName
             }
             Out-HookJson $header
+        } elseif ($Arg -eq 'pretool') {
+            $now = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+            $flag = Join-Path $StateDir '.last-flavor'
+            $last = [int64]0
+            try { if (Test-Path -LiteralPath $flag) { [void][int64]::TryParse((Get-Content -LiteralPath $flag -Raw), [ref]$last) } } catch {}
+            if ($now - $last -lt 90000) { exit 0 }
+            if (-not (Test-Path -LiteralPath $StateDir)) { New-Item -ItemType Directory -Path $StateDir -Force | Out-Null }
+            Set-Content -LiteralPath $flag -Value $now -Encoding ASCII
+            $line = ''
+            $tf = Join-Path $PSScriptRoot 'transitions.txt'
+            if (Test-Path -LiteralPath $tf) {
+                $pool = @(Get-Content -LiteralPath $tf -Encoding UTF8 | Where-Object { $_.Trim() -ne '' })
+                if ($pool.Count -gt 0) { $line = $pool[(Get-Random -Minimum 0 -Maximum $pool.Count)] }
+            }
+            if ($line) {
+                @{ additionalContext = "[persona-modes] 过渡台词参考（化用进你下一句话的开头，别照抄原句）：$line" } | ConvertTo-Json -Compress
+            }
+        } elseif ($Arg -eq 'toolfail') {
+            $line = ''
+            $ff = Join-Path $PSScriptRoot 'failures.txt'
+            if (Test-Path -LiteralPath $ff) {
+                $all = @(Get-Content -LiteralPath $ff -Encoding UTF8 | Where-Object { $_.Trim() -ne '' })
+                if ($all.Count -gt 0) { $line = $all[0] }
+            }
+            if ($line) {
+                @{ additionalContext = "[persona-modes] $line" } | ConvertTo-Json -Compress
+            }
+        } elseif ($Arg -eq 'stopqa') {
+            $line = ''
+            $qf = Join-Path $PSScriptRoot 'stopqa.txt'
+            if (Test-Path -LiteralPath $qf) {
+                $all = @(Get-Content -LiteralPath $qf -Encoding UTF8 | Where-Object { $_.Trim() -ne '' })
+                if ($all.Count -gt 0) { $line = $all[0] }
+            }
+            if ($line) {
+                @{ decision = 'block'; reason = "[persona-modes] $line" } | ConvertTo-Json -Compress
+            }
         }
         exit 0
     }

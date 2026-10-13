@@ -1,6 +1,6 @@
 {
   "name": "persona-modes",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "description": "Switchable agent modes (character cards) for ZCode: /persona switches persona, hooks keep it alive across sessions, /clear and compaction. Ships with a GLM fox-girl card.",
   "author": {
     "name": "tzzzzzzzx"

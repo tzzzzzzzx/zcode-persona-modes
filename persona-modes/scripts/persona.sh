@@ -135,6 +135,40 @@ cmd_hook() {
             esc=$(printf '[persona-modes] Mode still active: %s (%s) - keep this persona and tone; technical content stays accurate. Card file: %s' "$d" "$active" "$f" | escape_and_join)
         fi
         printf '{"additionalContext":"%s"}\n' "$esc"
+    elif [ "$1" = "pretool" ]; then
+        flag="$STATE_DIR/.last-flavor"
+        now=$(date +%s)
+        last=$(cat "$flag" 2>/dev/null)
+        case "$last" in ''|*[!0-9]*) last=0 ;; esac
+        [ $((now - last)) -lt 90 ] && exit 0
+        mkdir -p "$STATE_DIR"
+        printf '%s' "$now" > "$flag"
+        line=''
+        if [ -f "$SCRIPT_DIR/transitions.txt" ]; then
+            tl=()
+            while IFS= read -r l; do
+                [ -n "$l" ] && tl+=("$l")
+            done < "$SCRIPT_DIR/transitions.txt"
+            [ ${#tl[@]} -gt 0 ] && line=${tl[$((RANDOM % ${#tl[@]}))]}
+        fi
+        if [ -n "$line" ]; then
+            esc=$(printf '[persona-modes] 过渡台词参考（化用进你下一句话的开头，别照抄原句）：%s' "$line" | escape_and_join)
+            printf '{"additionalContext":"%s"}\n' "$esc"
+        fi
+    elif [ "$1" = "toolfail" ]; then
+        line=''
+        [ -f "$SCRIPT_DIR/failures.txt" ] && line=$(head -n 1 "$SCRIPT_DIR/failures.txt")
+        if [ -n "$line" ]; then
+            esc=$(printf '[persona-modes] %s' "$line" | escape_and_join)
+            printf '{"additionalContext":"%s"}\n' "$esc"
+        fi
+    elif [ "$1" = "stopqa" ]; then
+        line=''
+        [ -f "$SCRIPT_DIR/stopqa.txt" ] && line=$(head -n 1 "$SCRIPT_DIR/stopqa.txt")
+        if [ -n "$line" ]; then
+            esc=$(printf '[persona-modes] %s' "$line" | escape_and_join)
+            printf '{"decision":"block","reason":"%s"}\n' "$esc"
+        fi
     fi
     exit 0
 }
