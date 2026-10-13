@@ -44,7 +44,7 @@ persona-modes/            ← 仓库根 = 可直接添加的插件市场目录
 ## 生效原理
 
 - `SessionStart` 钩子（startup / resume / clear / compact）把当前模式完整角色卡注入会话
-- `UserPromptSubmit` 每条消息补 GUARD 守卫提醒（轮换抽取）；`PreToolUse` 按 90 秒配额注入过渡台词；`PostToolUseFailure` 失败即注入干燥优先提醒；`Stop` 质检闸对说明书腔请求一次自纠——全程贯彻，跨会话、跨压缩
+- `UserPromptSubmit` 每条消息补 GUARD 守卫提醒（轮换抽取）；`PreToolUse` 按 90 秒配额注入过渡台词（已实证宿主侧注入通道可用）；`PostToolUseFailure` 失败即注入干燥优先提醒——全程贯彻，跨会话、跨压缩
 - 钩子为 `process` 类型直调 Windows PowerShell，无 shell 依赖；状态存于 `~/.zcode/persona-modes/state.json`
 - 角色卡为控制词分区格式（IDENTITY / USER_RELATION / CORE / SPEECH_STYLE / QUOTE_BANK / MODE_RULES / GUARD / PERSONA_END），事实层标签化、行为层 prose，取 RP 社区控制词卡与常规文卡的中庸
 
@@ -65,6 +65,7 @@ persona-modes/            ← 仓库根 = 可直接添加的插件市场目录
 
 ## 变更记录
 
+- **0.2.11** 移除 Stop 质检闸（用户实测判定没必要：匹配器误报面大、命中时自纠收益低）；钩子链收敛为五事件——SessionStart / UserPromptSubmit / PreToolUse / PostToolUseFailure 已实证可用
 - **0.2.10** 全程钩子链（七事件挂齐六个）：新增 `PreToolUse`（干活时按 90 秒配额注入过渡台词参考，池在 `transitions.txt`）、`PostToolUseFailure`（失败瞬间注入干燥优先提醒）、`Stop` 质检闸（回复预览命中说明书腔——总而言之/综上所述/作为AI客套——时请求一次自纠续写，续写次数由宿主封顶）；双引擎与双钩子配置同步；`PostToolUse` 观望未挂（防吵）
 - **0.2.9** 案例与立法分离：QUOTE_BANK 全场景锚点换入鲜活口吻（咯～呀啦嘛），SPEECH_STYLE 删除一切关于语气词的明文规则（0.2.8 限流条款退役，密度由示例隐式承担）；WHEN_WORKING 新增过程情绪：嫌麻烦走嘀咕和算账不走撒娇，甩锅只认日志/目录/上游/祖传代码，损主人一句照修，报错重试干燥优先
 - **0.2.8** 语气词限流（一句话最多一个，多数句子不用，已有～不再叠加——鲜活靠坏水内容，不靠句尾堆量）

@@ -199,17 +199,8 @@ switch ($Sub) {
             if ($line) {
                 @{ additionalContext = "[persona-modes] $line" } | ConvertTo-Json -Compress
             }
-        } elseif ($Arg -eq 'stopqa') {
-            $line = ''
-            $qf = Join-Path $PSScriptRoot 'stopqa.txt'
-            if (Test-Path -LiteralPath $qf) {
-                $all = @(Get-Content -LiteralPath $qf -Encoding UTF8 | Where-Object { $_.Trim() -ne '' })
-                if ($all.Count -gt 0) { $line = $all[0] }
-            }
-            if ($line) {
-                @{ decision = 'block'; reason = "[persona-modes] $line" } | ConvertTo-Json -Compress
-            }
         }
+    }
         exit 0
     }
     default {

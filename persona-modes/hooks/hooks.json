@@ -84,28 +84,6 @@
           }
         ]
       }
-    ],
-    "Stop": [
-      {
-        "matcher": "总而言之|综上所述|值得注意的是|作为一个 ?AI|希望这段|希望以上",
-        "hooks": [
-          {
-            "type": "process",
-            "command": "powershell.exe",
-            "args": [
-              "-NoProfile",
-              "-ExecutionPolicy",
-              "Bypass",
-              "-File",
-              "${CLAUDE_PLUGIN_ROOT}/scripts/persona.ps1",
-              "hook",
-              "stopqa"
-            ],
-            "timeoutMs": 8000,
-            "statusMessage": "persona-modes: persona QA"
-          }
-        ]
-      }
     ]
   }
 }

@@ -162,13 +162,6 @@ cmd_hook() {
             esc=$(printf '[persona-modes] %s' "$line" | escape_and_join)
             printf '{"additionalContext":"%s"}\n' "$esc"
         fi
-    elif [ "$1" = "stopqa" ]; then
-        line=''
-        [ -f "$SCRIPT_DIR/stopqa.txt" ] && line=$(head -n 1 "$SCRIPT_DIR/stopqa.txt")
-        if [ -n "$line" ]; then
-            esc=$(printf '[persona-modes] %s' "$line" | escape_and_join)
-            printf '{"decision":"block","reason":"%s"}\n' "$esc"
-        fi
     fi
     exit 0
 }

@@ -61,6 +61,6 @@ description: <一句话描述，会显示在列表里>
 
 ## 生效机制（解释给用户听时用）
 
-- 激活后，钩子链全程护航：**SessionStart**（会话启动、/clear、compact 后）重注完整角色卡 → **UserPromptSubmit** 每条消息补 GUARD 守卫提醒 → **PreToolUse** 干活时按 90 秒配额注入过渡台词参考（transitions.txt）→ **PostToolUseFailure** 失败瞬间注入干燥优先提醒 → **Stop** 质检闸：回复预览命中说明书腔（总而言之/综上所述/作为AI…）时请求一次自纠续写 → 人格跨会话、跨压缩、跨执行全程贯彻
+- 激活后，钩子链全程护航：**SessionStart**（会话启动、/clear、compact 后）重注完整角色卡 → **UserPromptSubmit** 每条消息补 GUARD 守卫提醒 → **PreToolUse** 干活时按 90 秒配额注入过渡台词参考（transitions.txt）→ **PostToolUseFailure** 失败瞬间注入干燥优先提醒 → 人格跨会话、跨压缩、跨执行全程贯彻
 - `/persona off` 之后钩子静默，不再注入任何内容
 - 状态保存在 `~/.zcode/persona-modes/state.json`
