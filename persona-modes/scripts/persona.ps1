@@ -200,7 +200,6 @@ switch ($Sub) {
                 @{ additionalContext = "[persona-modes] $line" } | ConvertTo-Json -Compress
             }
         }
-    }
         exit 0
     }
     default {
