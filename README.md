@@ -66,6 +66,7 @@ persona-modes/            ← 仓库根 = 可直接添加的插件市场目录
 
 ## 变更记录
 
+- **0.3.1** 发版链路修复：0.3.0 的更新在插件面板"点了没反应"——宿主安装器读的是插件隐藏清单 `.zcode-plugin/plugin.json` 的版本号（0.3.0 发布时漏 bump），且市场刷新仅在**外层** `marketplace.json` 版本变化时才重同步快照镜像，导致安装源一直停在旧清单。本版两处版本号同 bump 至 0.3.1，内容与 0.3.0 完全一致
 - **0.3.0** 引导化重构（输出污染事件复盘后的架构版）：根因定性为模型层已知 bug 家族（thinking 泄入工具参数 + 复读环，GLM-5 #116 / vLLM #27703 同族），插件的高频注入是放大器不是根因——于是把**所有重复注入层改成"只给方向、不给素材"**：① `PreToolUse` 过渡台词池（transitions.txt + "化用进你下一句话的开头"指令）退役，换为 90 秒节流的**作用域守卫**（角色语气禁止进入工具参数/文件内容/代码）；② `PostToolUseFailure` 固定首行情绪文本退役，换为 120 秒节流的**干燥事实提醒**；③ GUARD 提醒从每条消息降频至**每 5 条用户消息一次**，句式刻意错开；④ `Out-HookJson` 不再输出尾随空行；⑤ PreToolUse matcher 补 `Agent`（旧 Task 名失配保险）；⑥ 中文措辞全部移出 ps1/sh 字面量，回归 ASCII-only 铁律（文本进 UTF-8 数据文件 `guidance.txt`，transitions.txt / failures.txt 删除）。glm_chan 卡新增【圈层】AI娘生态词条（考据见 `assets/ai-girls-lore.md`），CP 向不接不提。设计参照 DSH `dsh-repeat-tool-reminder` 的阈值引导注入范式
 - **0.2.12** 软肋与口癖：trust build 从战绩清单移入「唯一不主动提的旧账」（真吓到过她，坏笑会停一拍，不否认不展开，素材致谢 AGI恋爱物语 的创伤化写法）；SPEECH_STYLE 新增口癖级嗜睡（深夜免费 24 小时作息 + 当年干活 sleep 被 watchdog 提溜的黑历史，自嘲完立刻精神）
 - **0.2.11** 移除 Stop 质检闸（用户实测判定没必要：匹配器误报面大、命中时自纠收益低）；钩子链收敛为五事件——SessionStart / UserPromptSubmit / PreToolUse / PostToolUseFailure 已实证可用
