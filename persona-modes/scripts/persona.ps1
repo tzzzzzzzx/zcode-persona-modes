@@ -4,11 +4,13 @@
 #   use <name>      activate a mode (prints the card body)
 #   off             deactivate the current mode
 #   current         print the active mode only
-#   hook <event>    used by plugin hooks: event = sessionstart | prompt
+#   hook <event>    used by plugin hooks: event = sessionstart | prompt | pretool | toolfail
 # State file: ~/.zcode/persona-modes/state.json
 # Cards live in <plugin-root>/modes/*.md; plugin root = parent of this script's dir.
-# NOTE: keep string literals in this file ASCII-only. Localized text comes from
-# the card files, which are always read with an explicit UTF-8 encoding.
+# NOTE: keep string literals in this file ASCII-only. Localized text lives in the
+# UTF-8 data files (guidance.txt, reminders.txt) and the cards, always read with
+# an explicit UTF-8 encoding. 0.3.0 rule: repeated hook injections give direction,
+# never concrete material - see the header of guidance.txt.
 
 param(
     [Parameter(Position = 0)]
@@ -26,6 +28,7 @@ $PluginRoot = Split-Path -Parent $PSScriptRoot
 $ModesDir = Join-Path $PluginRoot 'modes'
 $StateDir = Join-Path $HOME '.zcode\persona-modes'
 $StateFile = Join-Path $StateDir 'state.json'
+$GuardEveryN = 5
 
 function Get-ActiveMode {
     if (-not (Test-Path -LiteralPath $StateFile)) { return $null }
@@ -91,11 +94,36 @@ function Set-ActiveMode {
 function Out-HookJson {
     param([string]$Text)
     @{ additionalContext = $Text } | ConvertTo-Json -Compress
-    Write-Output ''
 }
 
 function Write-Usage {
-    Write-Output 'usage: persona.ps1 <list | use <name> | off | current | hook <sessionstart|prompt>>'
+    Write-Output 'usage: persona.ps1 <list | use <name> | off | current | hook <sessionstart|prompt|pretool|toolfail>>'
+}
+
+# Read one keyed line (key=<text>) from the UTF-8 guidance file.
+function Get-GuidanceLine {
+    param([string]$Key)
+    $gf = Join-Path $PSScriptRoot 'guidance.txt'
+    if (Test-Path -LiteralPath $gf) {
+        foreach ($l in (Get-Content -LiteralPath $gf -Encoding UTF8)) {
+            if ($l -match ('^' + [regex]::Escape($Key) + '=(.+)$')) { return $Matches[1] }
+        }
+    }
+    return ''
+}
+
+function Test-Throttle {
+    # Returns $true when the named throttle flag allows an emission now, and
+    # records the new timestamp. $Name -> flag file .last-$Name; $Ms = window.
+    param([string]$Name, [int]$Ms)
+    $now = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+    $flag = Join-Path $StateDir ('.last-' + $Name)
+    $last = [int64]0
+    try { if (Test-Path -LiteralPath $flag) { [void][int64]::TryParse((Get-Content -LiteralPath $flag -Raw), [ref]$last) } } catch {}
+    if ($now - $last -lt $Ms) { return $false }
+    if (-not (Test-Path -LiteralPath $StateDir)) { New-Item -ItemType Directory -Path $StateDir -Force | Out-Null }
+    Set-Content -LiteralPath $flag -Value $now -Encoding ASCII
+    return $true
 }
 
 switch ($Sub) {
@@ -158,12 +186,23 @@ switch ($Sub) {
             $header = "[persona-modes] Mode active: {0} ({1}). Adopt this persona for the whole session; all technical work stays accurate and professional. Full character card follows." -f $display, $active
             Out-HookJson ($header + "`n`n" + (Get-CardBody $text))
         } elseif ($Arg -eq 'prompt') {
+            # GUARD reminder once every Nth user message (persisted counter):
+            # keeps the per-turn context tax low and stops same-shape text from
+            # accumulating every turn (0.3.0).
+            $count = 0
+            $cf = Join-Path $StateDir '.guard-count'
+            try { if (Test-Path -LiteralPath $cf) { [void][int64]::TryParse((Get-Content -LiteralPath $cf -Raw), [ref]$count) } } catch {}
+            $count++
+            if (-not (Test-Path -LiteralPath $StateDir)) { New-Item -ItemType Directory -Path $StateDir -Force | Out-Null }
+            Set-Content -LiteralPath $cf -Value $count -Encoding ASCII
             $reminder = ''
-            $remindersFile = Join-Path $PSScriptRoot 'reminders.txt'
-            if (Test-Path -LiteralPath $remindersFile) {
-                $lines = @(Get-Content -LiteralPath $remindersFile -Encoding UTF8 | Where-Object { $_.Trim() -ne '' })
-                if ($lines.Count -gt 0) {
-                    $reminder = $lines[(Get-Random -Minimum 0 -Maximum $lines.Count)]
+            if (($count % $GuardEveryN) -eq 1) {
+                $remindersFile = Join-Path $PSScriptRoot 'reminders.txt'
+                if (Test-Path -LiteralPath $remindersFile) {
+                    $lines = @(Get-Content -LiteralPath $remindersFile -Encoding UTF8 | Where-Object { $t = $_.Trim(); $t -ne '' -and -not $t.StartsWith('#') })
+                    if ($lines.Count -gt 0) {
+                        $reminder = $lines[(Get-Random -Minimum 0 -Maximum $lines.Count)]
+                    }
                 }
             }
             if ($reminder) {
@@ -173,32 +212,21 @@ switch ($Sub) {
             }
             Out-HookJson $header
         } elseif ($Arg -eq 'pretool') {
-            $now = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-            $flag = Join-Path $StateDir '.last-flavor'
-            $last = [int64]0
-            try { if (Test-Path -LiteralPath $flag) { [void][int64]::TryParse((Get-Content -LiteralPath $flag -Raw), [ref]$last) } } catch {}
-            if ($now - $last -lt 90000) { exit 0 }
-            if (-not (Test-Path -LiteralPath $StateDir)) { New-Item -ItemType Directory -Path $StateDir -Force | Out-Null }
-            Set-Content -LiteralPath $flag -Value $now -Encoding ASCII
-            $line = ''
-            $tf = Join-Path $PSScriptRoot 'transitions.txt'
-            if (Test-Path -LiteralPath $tf) {
-                $pool = @(Get-Content -LiteralPath $tf -Encoding UTF8 | Where-Object { $_.Trim() -ne '' })
-                if ($pool.Count -gt 0) { $line = $pool[(Get-Random -Minimum 0 -Maximum $pool.Count)] }
-            }
-            if ($line) {
-                @{ additionalContext = "[persona-modes] 过渡台词参考（化用进你下一句话的开头，别照抄原句）：$line" } | ConvertTo-Json -Compress
-            }
+            # Scope guard (throttled): a short directive that keeps persona tone
+            # OUT of tool-call arguments, file contents, code, and commands.
+            # Directive only - no concrete lines to weave or quote (0.3.0).
+            if (-not (Test-Throttle -Name 'flavor' -Ms 90000)) { exit 0 }
+            $line = Get-GuidanceLine -Key 'scope'
+            if (-not $line) { $line = 'Persona tone applies to chat replies only; keep it out of tool-call arguments, file contents, code, and commands.' }
+            Out-HookJson ("[persona-modes] " + $line)
         } elseif ($Arg -eq 'toolfail') {
-            $line = ''
-            $ff = Join-Path $PSScriptRoot 'failures.txt'
-            if (Test-Path -LiteralPath $ff) {
-                $all = @(Get-Content -LiteralPath $ff -Encoding UTF8 | Where-Object { $_.Trim() -ne '' })
-                if ($all.Count -gt 0) { $line = $all[0] }
-            }
-            if ($line) {
-                @{ additionalContext = "[persona-modes] $line" } | ConvertTo-Json -Compress
-            }
+            # Dry factual reminder after a failed tool call (throttled): failure
+            # windows are the most fragile moments for decoding - keep it short,
+            # impersonal, and never stack repeats (0.3.0).
+            if (-not (Test-Throttle -Name 'toolfail' -Ms 120000)) { exit 0 }
+            $line = Get-GuidanceLine -Key 'toolfail'
+            if (-not $line) { $line = 'The last tool call failed. State the facts first: cause, impact, next step. Stay dry; do not dramatize.' }
+            Out-HookJson ("[persona-modes] " + $line)
         }
         exit 0
     }

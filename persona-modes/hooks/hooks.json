@@ -44,7 +44,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Read|Grep|Glob|Bash|Edit|Write|Task",
+        "matcher": "Read|Grep|Glob|Bash|Edit|Write|Task|Agent",
         "hooks": [
           {
             "type": "process",
@@ -59,7 +59,7 @@
               "pretool"
             ],
             "timeoutMs": 8000,
-            "statusMessage": "persona-modes: transition flavor"
+            "statusMessage": "persona-modes: scope guard"
           }
         ]
       }

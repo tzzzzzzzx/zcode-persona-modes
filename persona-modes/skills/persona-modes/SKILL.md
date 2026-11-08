@@ -61,6 +61,7 @@ description: <一句话描述，会显示在列表里>
 
 ## 生效机制（解释给用户听时用）
 
-- 激活后，钩子链全程护航：**SessionStart**（会话启动、/clear、compact 后）重注完整角色卡 → **UserPromptSubmit** 每条消息补 GUARD 守卫提醒 → **PreToolUse** 干活时按 90 秒配额注入过渡台词参考（transitions.txt）→ **PostToolUseFailure** 失败瞬间注入干燥优先提醒 → 人格跨会话、跨压缩、跨执行全程贯彻
+- 激活后，钩子链全程护航：**SessionStart**（会话启动、/clear、compact 后）重注完整角色卡（整卡一次注入，人格的底座）→ **UserPromptSubmit** 每 5 条用户消息注入一条 GUARD 守卫提醒（状态计数器 + 轮换抽取，句式刻意错开）→ **PreToolUse** 按 90 秒配额注入作用域守卫（`guidance.txt` 的 scope 行：只给方向不给素材，角色语气禁止进入工具参数/文件内容/代码）→ **PostToolUseFailure** 失败后按 120 秒节流注入干燥事实提醒 → 人格跨会话、跨压缩、跨执行全程贯彻
+- 0.3.0 设计规则：**重复注入层只给方向、不给素材**——不给复读环供料；具体台词只存在于整卡注入与 QUOTE_BANK
 - `/persona off` 之后钩子静默，不再注入任何内容
-- 状态保存在 `~/.zcode/persona-modes/state.json`
+- 状态与计数器保存在 `~/.zcode/persona-modes/state.json`（`state.json`、`.guard-count`、`.last-flavor`、`.last-toolfail`）

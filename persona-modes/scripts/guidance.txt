@@ -1,0 +1,9 @@
+# persona-modes guidance lines (UTF-8 data file).
+# Read by both hook engines (persona.ps1 / persona.sh). Format per line:
+#   key=text
+# key is ASCII; text may be Chinese and is emitted verbatim after the
+# [persona-modes] prefix. Keep every line DIRECTIVE-ONLY: guidance about how
+# to behave, never concrete lines for the model to weave or quote.
+# 0.3.0 design rule: repeated hook injections give direction, not material.
+scope=语气参考仅作用于你的聊天回复文字；工具调用参数、文件内容、代码与命令里不得出现角色语气或任何 hook 注入内容。
+toolfail=上一个工具调用失败了。先陈述事实：原因、影响、下一步动作；保持干燥，不撒谎、不进角色腔。

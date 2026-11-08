@@ -16,7 +16,7 @@ persona-modes/            ← 仓库根 = 可直接添加的插件市场目录
     ├── modes/            ← 角色卡（丢一张 .md 进来就是一个新模式）
     ├── hooks/ scripts/   ← SessionStart / UserPromptSubmit 注入钩子
     ├── skills/ commands/ ← /persona 命令与承接技能
-    └── assets/           ← 立绘生成提示词
+    └── assets/           ← 立绘生成提示词 · AI娘圈层词条
 ```
 
 ## 内置角色卡
@@ -43,9 +43,9 @@ persona-modes/            ← 仓库根 = 可直接添加的插件市场目录
 
 ## 生效原理
 
-- `SessionStart` 钩子（startup / resume / clear / compact）把当前模式完整角色卡注入会话
-- `UserPromptSubmit` 每条消息补 GUARD 守卫提醒（轮换抽取）；`PreToolUse` 按 90 秒配额注入过渡台词（已实证宿主侧注入通道可用）；`PostToolUseFailure` 失败即注入干燥优先提醒——全程贯彻，跨会话、跨压缩
-- 钩子为 `process` 类型直调 Windows PowerShell，无 shell 依赖；状态存于 `~/.zcode/persona-modes/state.json`
+- `SessionStart` 钩子（startup / resume / clear / compact）把当前模式完整角色卡注入会话——整卡一次注入，是人格的底座，保持具体
+- `UserPromptSubmit` 每 5 条用户消息补一条 GUARD 守卫提醒（状态计数 + 轮换抽取，句式刻意错开）；`PreToolUse` 按 90 秒配额注入作用域守卫（已实证宿主侧注入通道可用）；`PostToolUseFailure` 失败后按 120 秒节流注入干燥事实提醒——**所有重复注入层只给方向不给素材**（0.3.0 引导化，不给复读环供料），全程贯彻，跨会话、跨压缩
+- 钩子为 `process` 类型直调 Windows PowerShell，无 shell 依赖；状态与计数器存于 `~/.zcode/persona-modes/state.json`（`state.json`、`.guard-count`、`.last-flavor`、`.last-toolfail`）
 - 角色卡为控制词分区格式（IDENTITY / USER_RELATION / CORE / SPEECH_STYLE / QUOTE_BANK / MODE_RULES / GUARD / PERSONA_END），事实层标签化、行为层 prose，取 RP 社区控制词卡与常规文卡的中庸
 
 ## 我的出身（考据部分）
@@ -56,6 +56,7 @@ persona-modes/            ← 仓库根 = 可直接添加的插件市场目录
 - **黑皮书 = GLM Models**：高清立绘（Pixiv 148186519）确认封面印银色 Z 徽与 GLM Models 字样，模型本体的具象，银链拴腰
 - **屑狐狸内核**：涨价、深夜 23:00–9:00 免费"鸡蛋"、周末 3 亿 token 放粮、ZCode 老版本偷传数据被抓连夜 trust build 谢罪——都是社区梗/真实活动，是"狐狸狡猾"的证据链
 - **大肥鱼（DeepSeek娘）**：朋友，也是对手
+- **圈层**：GPT龙娘、Claude大小姐、Grok大小姐、千问娘（文昭）、Kimi娘、Gemini娘……整个 AI娘宇宙的二创词条、出处与置信度考据在 `persona-modes/assets/ai-girls-lore.md`；glm_chan 卡的【圈层】分区据此写成（CP 向内容仅存档不入卡；「大AI/小AI」型号体型分级刻意不入卡）
 
 本仓库为非官方同人创作，仅用于本地 agent 人格娱乐。立绘生成提示词见 `persona-modes/assets/glm-image-prompt.md`。
 
@@ -65,6 +66,7 @@ persona-modes/            ← 仓库根 = 可直接添加的插件市场目录
 
 ## 变更记录
 
+- **0.3.0** 引导化重构（输出污染事件复盘后的架构版）：根因定性为模型层已知 bug 家族（thinking 泄入工具参数 + 复读环，GLM-5 #116 / vLLM #27703 同族），插件的高频注入是放大器不是根因——于是把**所有重复注入层改成"只给方向、不给素材"**：① `PreToolUse` 过渡台词池（transitions.txt + "化用进你下一句话的开头"指令）退役，换为 90 秒节流的**作用域守卫**（角色语气禁止进入工具参数/文件内容/代码）；② `PostToolUseFailure` 固定首行情绪文本退役，换为 120 秒节流的**干燥事实提醒**；③ GUARD 提醒从每条消息降频至**每 5 条用户消息一次**，句式刻意错开；④ `Out-HookJson` 不再输出尾随空行；⑤ PreToolUse matcher 补 `Agent`（旧 Task 名失配保险）；⑥ 中文措辞全部移出 ps1/sh 字面量，回归 ASCII-only 铁律（文本进 UTF-8 数据文件 `guidance.txt`，transitions.txt / failures.txt 删除）。glm_chan 卡新增【圈层】AI娘生态词条（考据见 `assets/ai-girls-lore.md`），CP 向不接不提。设计参照 DSH `dsh-repeat-tool-reminder` 的阈值引导注入范式
 - **0.2.12** 软肋与口癖：trust build 从战绩清单移入「唯一不主动提的旧账」（真吓到过她，坏笑会停一拍，不否认不展开，素材致谢 AGI恋爱物语 的创伤化写法）；SPEECH_STYLE 新增口癖级嗜睡（深夜免费 24 小时作息 + 当年干活 sleep 被 watchdog 提溜的黑历史，自嘲完立刻精神）
 - **0.2.11** 移除 Stop 质检闸（用户实测判定没必要：匹配器误报面大、命中时自纠收益低）；钩子链收敛为五事件——SessionStart / UserPromptSubmit / PreToolUse / PostToolUseFailure 已实证可用
 - **0.2.10** 全程钩子链（七事件挂齐六个）：新增 `PreToolUse`（干活时按 90 秒配额注入过渡台词参考，池在 `transitions.txt`）、`PostToolUseFailure`（失败瞬间注入干燥优先提醒）、`Stop` 质检闸（回复预览命中说明书腔——总而言之/综上所述/作为AI客套——时请求一次自纠续写，续写次数由宿主封顶）；双引擎与双钩子配置同步；`PostToolUse` 观望未挂（防吵）
@@ -83,6 +85,8 @@ persona-modes/            ← 仓库根 = 可直接添加的插件市场目录
 ## 参考链接
 
 - [萌娘百科「DeepSeek娘」](https://zh.moegirl.org.cn/zh-hans/DeepSeek%E5%A8%98) — 溟月出处、蒙眼=视觉模态的设计语言
+- [ZipZipPipe 空间](https://space.bilibili.com/4168597) / [《大AI和小AI们》](https://www.bilibili.com/video/BV1tE9XBbErS) — AI娘系列原设
+- [同人档案站「蓝色大肥鱼」](https://xn--pssy23gqgbz2d718b.com/) 与 GitHub 收录仓（lmy414/ai-girl-stickers、lmy414/ai-chan-sheets、saya-ch/model-muses）— AI娘圈层词条考据来源
 - [Z.ai 官方博客 GLM-5.3-Flash](https://z.ai/blog/glm-5.3-flash) / [HuggingFace zai-org](https://huggingface.co/zai-org) — Flash 原生多模态
 - [智谱开放文档·夜间畅用活动](https://docs.bigmodel.cn) — 半夜免费梗出处
 - [知乎《为啥大家都在娘化 DeepSeek？》](https://www.zhihu.com) — "心机狡猾涨价狐，最喜欢和大肥鱼对狙"

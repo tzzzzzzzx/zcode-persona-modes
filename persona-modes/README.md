@@ -6,5 +6,5 @@ ZCode 插件本体目录。完整介绍、安装步骤、GLM娘 考据、许可�
 
 - `/persona` 列出模式；`/persona glm_chan` 上狐狸；`/persona off` 下班
 - 角色卡在 `modes/`，加一张带 frontmatter 的 `.md` 即新增模式，无需重启
-- 每条消息的守卫提醒口令在 `scripts/reminders.txt`，可自行增删
+- 守卫提醒（每 5 条用户消息轮换一条，句式错开）在 `scripts/reminders.txt`；作用域守卫与失败干燥提醒的引导文本在 `scripts/guidance.txt`——均可自行增删，写"方向"不写"台词"
 - 激活状态存于 `~/.zcode/persona-modes/state.json`

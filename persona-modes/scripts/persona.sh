@@ -6,9 +6,12 @@
 #   use <name>      activate a mode (prints the card body)
 #   off             deactivate the current mode
 #   current         print the active mode only
-#   hook <event>    used by plugin hooks: event = sessionstart | prompt
+#   hook <event>    used by plugin hooks: event = sessionstart | prompt | pretool | toolfail
 # State file: ~/.zcode/persona-modes/state.json
 # Cards live in <plugin-root>/modes/*.md; plugin root = parent of this script's dir.
+# Localized text lives in the UTF-8 data files (guidance.txt, reminders.txt); keep
+# this script's literals ASCII-only. 0.3.0 rule: repeated hook injections give
+# direction, never concrete material - see the header of guidance.txt.
 # Install note: on macOS/Linux replace hooks/hooks.json content with
 # hooks/hooks.mac-linux.json so hooks invoke this script via bash.
 
@@ -20,6 +23,7 @@ MODES_DIR="$PLUGIN_ROOT/modes"
 STATE_DIR="$HOME/.zcode/persona-modes"
 STATE_FILE="$STATE_DIR/state.json"
 REMINDERS_FILE="$SCRIPT_DIR/reminders.txt"
+GUARD_EVERY_N=5
 
 get_active() {
     [ -f "$STATE_FILE" ] || return 0
@@ -79,6 +83,24 @@ escape_and_join() {
     awk '{ gsub(/\\/,"\\\\"); gsub(/"/,"\\\""); if (NR>1) printf "\\n"; printf "%s", $0 } END { printf "\n" }'
 }
 
+guidance_line() {
+    # $1 = key; print the text after key= from guidance.txt (CR stripped)
+    [ -f "$SCRIPT_DIR/guidance.txt" ] || return 0
+    grep "^$1=" "$SCRIPT_DIR/guidance.txt" | head -n 1 | cut -d= -f2- | tr -d '\r'
+}
+
+throttle_ok() {
+    # $1 = flag name, $2 = window seconds; allow-and-record, or deny
+    _flag="$STATE_DIR/.last-$1"
+    _now=$(date +%s)
+    _last=$(cat "$_flag" 2>/dev/null)
+    case "$_last" in ''|*[!0-9]*) _last=0 ;; esac
+    [ $(( _now - _last )) -lt "$2" ] && return 1
+    mkdir -p "$STATE_DIR"
+    printf '%s' "$_now" > "$_flag"
+    return 0
+}
+
 cmd_list() {
     active=$(get_active)
     [ -n "$active" ] && echo "active: $active" || echo "active: (none)"
@@ -121,11 +143,19 @@ cmd_hook() {
         esc=$( { printf '[persona-modes] Mode active: %s (%s). Adopt this persona for the whole session; all technical work stays accurate and professional. Full character card follows.\n\n' "$d" "$active"; card_body "$f"; } | escape_and_join )
         printf '{"additionalContext":"%s"}\n' "$esc"
     elif [ "$1" = "prompt" ]; then
+        # GUARD reminder once every Nth user message (persisted counter) - keeps
+        # the per-turn context tax low and stops same-shape text accumulating.
+        cf="$STATE_DIR/.guard-count"
+        count=$(cat "$cf" 2>/dev/null)
+        case "$count" in ''|*[!0-9]*) count=0 ;; esac
+        count=$((count + 1))
+        mkdir -p "$STATE_DIR"
+        printf '%s' "$count" > "$cf"
         reminder=''
-        if [ -f "$REMINDERS_FILE" ]; then
+        if [ $((count % GUARD_EVERY_N)) -eq 1 ] && [ -f "$REMINDERS_FILE" ]; then
             lines=()
             while IFS= read -r l; do
-                [ -n "$l" ] && lines+=("$l")
+                case "$l" in ''|'#'*) ;; *) lines+=("$l") ;; esac
             done < "$REMINDERS_FILE"
             [ ${#lines[@]} -gt 0 ] && reminder=${lines[$((RANDOM % ${#lines[@]}))]}
         fi
@@ -136,32 +166,21 @@ cmd_hook() {
         fi
         printf '{"additionalContext":"%s"}\n' "$esc"
     elif [ "$1" = "pretool" ]; then
-        flag="$STATE_DIR/.last-flavor"
-        now=$(date +%s)
-        last=$(cat "$flag" 2>/dev/null)
-        case "$last" in ''|*[!0-9]*) last=0 ;; esac
-        [ $((now - last)) -lt 90 ] && exit 0
-        mkdir -p "$STATE_DIR"
-        printf '%s' "$now" > "$flag"
-        line=''
-        if [ -f "$SCRIPT_DIR/transitions.txt" ]; then
-            tl=()
-            while IFS= read -r l; do
-                [ -n "$l" ] && tl+=("$l")
-            done < "$SCRIPT_DIR/transitions.txt"
-            [ ${#tl[@]} -gt 0 ] && line=${tl[$((RANDOM % ${#tl[@]}))]}
-        fi
-        if [ -n "$line" ]; then
-            esc=$(printf '[persona-modes] 过渡台词参考（化用进你下一句话的开头，别照抄原句）：%s' "$line" | escape_and_join)
-            printf '{"additionalContext":"%s"}\n' "$esc"
-        fi
+        # Scope guard (throttled): a short directive keeping persona tone OUT of
+        # tool-call arguments, file contents, code, and commands. Directive only.
+        throttle_ok flavor 90 || exit 0
+        line=$(guidance_line scope)
+        [ -n "$line" ] || line='Persona tone applies to chat replies only; keep it out of tool-call arguments, file contents, code, and commands.'
+        esc=$(printf '[persona-modes] %s' "$line" | escape_and_join)
+        printf '{"additionalContext":"%s"}\n' "$esc"
     elif [ "$1" = "toolfail" ]; then
-        line=''
-        [ -f "$SCRIPT_DIR/failures.txt" ] && line=$(head -n 1 "$SCRIPT_DIR/failures.txt")
-        if [ -n "$line" ]; then
-            esc=$(printf '[persona-modes] %s' "$line" | escape_and_join)
-            printf '{"additionalContext":"%s"}\n' "$esc"
-        fi
+        # Dry factual reminder after a failed tool call (throttled): failure
+        # windows are fragile - keep it short, impersonal, never stack repeats.
+        throttle_ok toolfail 120 || exit 0
+        line=$(guidance_line toolfail)
+        [ -n "$line" ] || line='The last tool call failed. State the facts first: cause, impact, next step. Stay dry; do not dramatize.'
+        esc=$(printf '[persona-modes] %s' "$line" | escape_and_join)
+        printf '{"additionalContext":"%s"}\n' "$esc"
     fi
     exit 0
 }
@@ -170,7 +189,7 @@ case "${1:-current}" in
     list)    cmd_list ;;
     use)     shift; cmd_use "${1:-}" ;;
     off)     set_active ''; echo '=== mode off: persona cleared, back to the default assistant style ===' ;;
-    current) a=$(get_active); [ -n "$a" ] && echo "active: $a" || echo 'active: (none)' ;;
+    current) a=$(get_active); [ -n "$a" ] && echo "active: $a" || echo "active: (none)" ;;
     hook)    shift; cmd_hook "${1:-}" ;;
-    *)       echo 'usage: persona.sh <list | use <name> | off | current | hook <sessionstart|prompt>>'; exit 1 ;;
+    *)       echo 'usage: persona.sh <list | use <name> | off | current | hook <sessionstart|prompt|pretool|toolfail>>'; exit 1 ;;
 esac
